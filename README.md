@@ -43,6 +43,50 @@ That will create a migration for us, which we'll need to run with `rails db:migr
 
 Now we should be able to fire up the app with `rails server` and see the form at `http://localhost:3000/forms/new` to see the form.
 
+# Setting up our model
 
+Let's get to work writing the model code.
 
+### Setting up enums
 
+Our database includes some [enums](http://api.rubyonrails.org/classes/ActiveRecord/Enum.html).
+Let's add the code from those enums to our `Form` model at `app/models/form.rb`:
+
+```ruby
+class Form < ApplicationRecord
+  enum gender: [ :male, :female, :other ]
+  enum grade: [ "9th", "10th", "11th", "12th" ]
+end
+```
+
+This code will allow us to map integers in the database to strings at the application level.
+
+### Adding Validations
+
+[Validations in Rails](http://guides.rubyonrails.org/active_record_validations.html) allow us to verify that data is valid before we save it.
+We won't go into too much detail about what each validation means.
+You can research that on your own.
+Here's what we'll need to add to our `Form` model to get the validations we need:
+
+```ruby
+validates :first_name, presence: true
+validates :last_name, presence: true
+validates :email_address, presence: true, format: { with: /\A\S+@\S+\z/ }
+validates :address, presence: true
+validates :city, presence: true
+validates :state, presence: true
+validates :zipcode, presence: true
+validates :gender, presence: true
+validates :grade, presence: true
+validates :dietary_restrictions_description, presence: true, if: :dietary_restrictions?
+validates :emergency_contact_name, presence: true
+validates :emergency_contact_relationship, presence: true
+validates :emergency_contact_phone, presence: true
+validates :emergency_contact_address, presence: true
+validates :emergency_contact_city, presence: true
+validates :emergency_contact_state, presence: true
+validates :emergency_contact_zipcode, presence: true
+```
+
+That's a lot of validations.
+But now, if we go and try to submit the form with required fields blank, we should see a scary red error message.
