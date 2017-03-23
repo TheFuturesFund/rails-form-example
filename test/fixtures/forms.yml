@@ -1,0 +1,41 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  first_name: MyString
+  last_name: MyString
+  email_address: MyString
+  address: MyString
+  city: MyString
+  state: MyString
+  zipcode: MyString
+  gender: 1
+  grade: 1
+  dietary_restrictions: false
+  dietary_restrictions_description: MyString
+  emergency_contact_name: MyString
+  emergency_contact_relationship: MyString
+  emergency_contact_phone: MyString
+  emergency_contact_address: MyString
+  emergency_contact_city: MyString
+  emergency_contact_state: MyString
+  emergency_contact_zipcode: MyString
+
+two:
+  first_name: MyString
+  last_name: MyString
+  email_address: MyString
+  address: MyString
+  city: MyString
+  state: MyString
+  zipcode: MyString
+  gender: 1
+  grade: 1
+  dietary_restrictions: false
+  dietary_restrictions_description: MyString
+  emergency_contact_name: MyString
+  emergency_contact_relationship: MyString
+  emergency_contact_phone: MyString
+  emergency_contact_address: MyString
+  emergency_contact_city: MyString
+  emergency_contact_state: MyString
+  emergency_contact_zipcode: MyString
