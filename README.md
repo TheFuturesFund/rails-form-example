@@ -171,3 +171,9 @@ I'm adding styles to files in `app/assets/stylesheets/`.
 I won't go into detail about what's going on in there b/c it's out of scope for this example.
 But, you can check it out.
 
+### Index and show views
+
+Now, let's clean up the views in `app/views/forms/index.html.erb`.
+This is the view that shows the list of all forms.
+Again, I won't go into too much detail about what is going on there.
+You can look at those files to see the end result.

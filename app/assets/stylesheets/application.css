@@ -38,3 +38,17 @@ h1 {
 a {
   color: #FFA500;
 }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table, th, td {
+  border-bottom: 1px solid #000;
+  text-align: left;
+}
+
+th, td {
+  padding: 5px 0;
+}
