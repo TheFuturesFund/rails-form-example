@@ -90,3 +90,84 @@ validates :emergency_contact_zipcode, presence: true
 
 That's a lot of validations.
 But now, if we go and try to submit the form with required fields blank, we should see a scary red error message.
+
+# Setting up the our views
+
+Now that our model code is working, let's get the views right.
+
+### Form inputs
+
+Let's configure some of these form inputs.
+The code for the new form view lives in `app/views/forms/new.html.erb`.
+That code simply includes a partial named `_form` which is at `app/views/forms/_form.html.erb`.
+The form partial is where we'll be doing most of our work.
+
+Let's start with the email input.
+By default, that is a `text_field`, but we can use the browser's native email input by replacing that with an `email_field`:
+
+```erb
+<div class="field">
+  <%= f.label :email_address %>
+  <%= f.email_field :email_address %>
+</div>
+```
+
+Next, let's look at the gender and grade inputs.
+Right now those are text fields as well which is not fun since there's no way of knowing what you should type there.
+We can choose to do something radio buttons or a dropdown here.
+I'm going to go with radio buttons for the genders, and a dropdown for grades.
+
+```erb
+<!-- Gender -->
+<div class="field">
+  <%= f.label :gender %>
+
+  <%= f.label :gender, "Male", value:  "male" %>
+  <%= f.radio_button :gender, "male" %>
+  <%= f.label :gender, "Female", value:  "female" %>
+  <%= f.radio_button :gender, "female" %>
+  <%= f.label :gender, "Other", value:  "other" %>
+  <%= f.radio_button :gender, "other" %>
+</div>
+```
+
+```erb
+<!-- Grade -->
+<div class="field">
+  <%= f.label :grade %>
+  <%= f.select :grade, Form.grades.keys.to_a %>
+</div>
+```
+
+Now let's look at the dietary restrictions.
+Currently, that is a text field.
+It may make more sense for us to change it to a text area:
+
+```erb
+<div class="field">
+  <%= f.label :dietary_restrictions_description %>
+  <%= f.text_area :dietary_restrictions_description %>
+</div>
+```
+
+Finally, let's look some more at the dietary restrictions descriptions.
+It's label does not make much sense to me, a person who has no idea what they're doing.
+Luckily, we can change it by sticking a string in there:
+
+```erb
+<%= f.label :dietary_restrictions_description, "Please describe any dietary restrictions that may be present" %>
+```
+
+It's truly incredible what kids can do with computers there days.
+
+### Styles
+
+As it stands, our form is ugly.
+We don't want an ugly form, so we're going to add some styles.
+Let's start by deleting everything in `app/assets/stylesheets/scaffolds.scss`.
+Deleting the styles there will get us back to bare bones HTML elements.
+
+I'm adding styles to files in `app/assets/stylesheets/`.
+I won't go into detail about what's going on in there b/c it's out of scope for this example.
+But, you can check it out.
+

@@ -23,7 +23,7 @@
 
   <div class="field">
     <%= f.label :email_address %>
-    <%= f.text_field :email_address %>
+    <%= f.email_field :email_address %>
   </div>
 
   <div class="field">
@@ -48,12 +48,18 @@
 
   <div class="field">
     <%= f.label :gender %>
-    <%= f.number_field :gender %>
+
+    <%= f.label :gender, "Male", value:  "male" %>
+    <%= f.radio_button :gender, "male" %>
+    <%= f.label :gender, "Female", value:  "female" %>
+    <%= f.radio_button :gender, "female" %>
+    <%= f.label :gender, "Other", value:  "other" %>
+    <%= f.radio_button :gender, "other" %>
   </div>
 
   <div class="field">
     <%= f.label :grade %>
-    <%= f.number_field :grade %>
+    <%= f.select :grade, Form.grades.keys.to_a %>
   </div>
 
   <div class="field">
@@ -62,8 +68,8 @@
   </div>
 
   <div class="field">
-    <%= f.label :dietary_restrictions_description %>
-    <%= f.text_field :dietary_restrictions_description %>
+    <%= f.label :dietary_restrictions_description, "Please describe any dietary restrictions that may be present" %>
+    <%= f.text_area :dietary_restrictions_description %>
   </div>
 
   <div class="field">
@@ -102,6 +108,6 @@
   </div>
 
   <div class="actions">
-    <%= f.submit %>
+    <%= f.submit "Submit Application!" %>
   </div>
 <% end %>

@@ -13,3 +13,28 @@
  *= require_tree .
  *= require_self
  */
+
+html {
+  background-color: #777;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size: 20px;
+}
+
+body {
+  background-color: #FFF;
+  margin: 15px auto;
+  width: 800px;
+  padding: 15px;
+}
+
+h1 {
+  background-color: #FFA500;
+  color: #FFF;
+  margin: 5px 0;
+  padding: 5px 0;
+  text-align: center;
+}
+
+a {
+  color: #FFA500;
+}
