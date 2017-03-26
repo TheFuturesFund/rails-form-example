@@ -9,6 +9,16 @@
   </head>
 
   <body>
+    <% if admin_signed_in? %>
+      <p>
+        Sign in as <%= current_admin.email %>.
+        <%= link_to "Sign out", destroy_admin_session_path, method: :delete %>.
+      </p>
+    <% else %>
+      <p>
+        <%= link_to "Admin sign in", new_admin_session_path %>
+      </p>
+    <% end %>
     <%= yield %>
   </body>
 </html>

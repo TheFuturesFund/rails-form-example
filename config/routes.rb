@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
-  resources :forms
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  devise_for :admins
+  resources :forms, only: [:new, :create, :index, :show, :destroy] do
+    get "submitted", on: :collection
+  end
+  root to: "forms#new"
 end

@@ -114,7 +114,7 @@ By default, that is a `text_field`, but we can use the browser's native email in
 
 Next, let's look at the gender and grade inputs.
 Right now those are text fields as well which is not fun since there's no way of knowing what you should type there.
-We can choose to do something radio buttons or a dropdown here.
+We can choose to do radio buttons or a dropdown here.
 I'm going to go with radio buttons for the genders, and a dropdown for grades.
 
 ```erb
@@ -177,3 +177,195 @@ Now, let's clean up the views in `app/views/forms/index.html.erb`.
 This is the view that shows the list of all forms.
 Again, I won't go into too much detail about what is going on there.
 You can look at those files to see the end result.
+
+# Setting up the routes
+
+Right now, everything still lives at `localhost:3000/forms`.
+Let's get our routes in order so things make sense.
+
+In `config/routes.rb`, lets find `resource :form` and replace it with:
+
+```ruby
+resources :forms, only: [:new, :create, :index, :show, :destroy]
+root to: "forms#new"
+```
+
+This will gives us routes for just the actions we need, and also setup the root route to be the new form.
+
+# Adding Auth
+
+We'll want to require people to sign in to see the complete forms.
+For that we'll use [Devise](https://github.com/plataformatec/devise).
+Devise has [its own instructions to get started](https://github.com/plataformatec/devise#getting-started).
+Follow those until it's time to generate our model.
+
+### Adding an Admin model
+
+When it's time to generate models.
+We'll generate one named `Admin`.
+
+```shell
+rails generate devise Admin
+```
+
+Again, we'll need to run `rails db:migrate` to apply our changes to the database.
+
+Now there's a few new routes we can try out:
+
+- http://localhost:3000/admins/sign_in
+- http://localhost:3000/admins/sign_up
+
+Since it doesn't make sense for people to be able to sign up to be an admin, let's drop that functionality.
+Go to the `Admin` model at `app/models/admin.rb`.
+In the list of Devise models, let's remove `:registerable`.
+
+```ruby
+class Admin < ApplicationRecord
+  devise :database_authenticatable,
+    :recoverable,
+    :rememberable,
+    :trackable,
+    :validatable
+end
+```
+
+Now the sign up route should no longer work.
+
+### Add auth to views
+
+Let's make our views aware of whose signed in.
+In the application layout (`app/views/layouts/application.html.erb`) let's add the following to our `<body>` tag:
+
+```erb
+<body>
+  <% if admin_signed_in? %>
+    <p>
+      Sign in as <%= current_admin.email %>.
+      <%= link_to "Sign out", destroy_admin_session_path, method: :delete %>.
+    </p>
+  <% else %>
+    <p>
+      <%= link_to "Admin sign in", new_admin_session_path %>
+    </p>
+  <% end %>
+  <%= yield %>
+</body>
+```
+
+Now all of our views should have links to sign in or sign out depending on whether we're sign in.
+
+### Adding test users
+
+We've removed sign up, so how do we add users to test sign in?
+We can do so using the [Rails console](http://guides.rubyonrails.org/command_line.html).
+To start the console, run `rails console` in your terminal.
+
+One the console start up, we can use it to create users:
+
+```ruby
+irb(main):001:0> Admin.create(
+irb(main):002:1* email: "admin@example.com",
+irb(main):003:1* password: "password",
+irb(main):004:1* )
+```
+
+Now we should be able to go back to our browser and log in with the email `admin@example.com` and the password `password`.
+Run `quit` on the console to leave the Rails console.
+
+### Protecting our views
+
+We have accounts, but you can still see the submissions w/o signing in.
+Let's fix that by going to our Forms controller at `app/controllers/forms_controller.rb`.
+There we'll add a before filter to make sure only authenticated users can use our form.
+
+```ruby
+class FormsController < ApplicationController
+  before_action :set_form, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_admin!, except: [:new, :create]
+
+  # ...
+end
+```
+
+Now, if we try to look at the list of submissions at `/forms`, we're kicked back to the login screen.
+The logic above tells the controller to this for each of its actions except the new action and create action.
+
+This is looking pretty good, but now there's some weird behavior.
+After submitting a form, you're redirected to the login screen with a message telling you to sign in to continue.
+This is happening because after submitting our form, we're redirected to the show view for our form which is now protected by Devise.
+Let's instead add a new view to redirect to saying the form is complete.
+
+First, let's add a new view at `app/views/forms/submitted.html.erb`:
+
+```
+<h1>Submitted successfully</h1>
+
+<p>
+  <em>Your application has been submitted and is being processed!</em>
+</p>
+
+<p>
+  Do you have another child interested in joining us this summer?
+  Submit another application <%= link_to "here", new_form_path %>.
+</p>
+```
+
+Now, let's add a controller action for this view.
+Since the view doesn't have any logic, our controller action doesn't need to do anything, so the function can be empty.
+In `app/controllers/forms_controller.rb`, let's add the following between the `show` and `new` actions:
+
+```ruby
+  def show
+  end
+
+  def submitted
+  end
+
+  def new
+    @form = Form.new
+  end
+```
+
+Let's wire that action up to a path in `config/routes`.
+To do this, we'll add a block to our form resources declaration:
+
+```ruby
+Rails.application.routes.draw do
+  devise_for :admins
+  resources :forms, only: [:new,  :create, :index, :show, :destroy] do
+    get "submitted", on: :collection
+  end
+  root to: "forms#new"
+end
+```
+
+We'll have the app redirect to that URL after successful form submission.
+Change the `create` action in the forms controller at `app/controllers/forms_controller.rb`:
+
+```ruby
+def create
+  @form = Form.new(form_params)
+
+  respond_to do |format|
+    if @form.save
+      # The next line is the one that changes
+      format.html { redirect_to submitted_forms_path, notice: 'Form was successfully created.' }
+      format.json { render :show, status: :created, location: @form }
+    else
+      format.html { render :new }
+      format.json { render json: @form.errors, status: :unprocessable_entity }
+    end
+  end
+end
+```
+
+Finally, let's change the authentication before filter in the forms controller to except the `submitted` action:
+
+```ruby
+class FormsController < ApplicationController
+  before_action :set_form, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_admin!, except: [:new, :create, :submitted]
+
+  # ...
+end
+```

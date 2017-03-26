@@ -1,5 +1,6 @@
 class FormsController < ApplicationController
   before_action :set_form, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_admin!, except: [:new, :create, :submitted]
 
   # GET /forms
   # GET /forms.json
@@ -28,7 +29,7 @@ class FormsController < ApplicationController
 
     respond_to do |format|
       if @form.save
-        format.html { redirect_to @form, notice: 'Form was successfully created.' }
+        format.html { redirect_to submitted_forms_path, notice: 'Form was successfully created.' }
         format.json { render :show, status: :created, location: @form }
       else
         format.html { render :new }
